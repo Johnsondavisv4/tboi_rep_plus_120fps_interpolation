@@ -1,4 +1,4 @@
-name: Build release
+name: Build 120 FPS Interpolation release
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
             Copy-Item "build/$version/Release/dinput8.dll" $package
             Copy-Item interpol.ini $package
             $edition = if ($version -match '[a-z]$') { 'repentance' } else { 'repentance-plus' }
-            $archive = "dist/isaac-interpolation-$edition-$version.zip"
+            $archive = "dist/isaac-120fps-interpolation-$edition-$version.zip"
             Compress-Archive -Path "$package/dinput8.dll", "$package/interpol.ini" -DestinationPath $archive -Force
           }
           Get-ChildItem dist -Filter *.zip | Sort-Object Name | ForEach-Object {
@@ -68,7 +68,7 @@ jobs:
           $assets = @(Get-ChildItem dist -File | ForEach-Object { $_.FullName })
           $versions = @(Get-Content game-versions.txt | Where-Object { $_.Trim() } | ForEach-Object { $_.Trim() })
           if ($versions.Count -eq 0) { throw 'No supported game versions listed' }
-          $releaseTitle = "60 FPS Interpolation — Repentance+ $($versions[-1])"
+          $releaseTitle = "120 FPS Interpolation — Repentance+ $($versions[-1])"
           gh release view "$env:RELEASE_TAG" --json id
           if ($LASTEXITCODE -ne 0) {
             gh release create "$env:RELEASE_TAG" --target "$env:RELEASE_COMMIT" --draft --generate-notes --title "$releaseTitle"

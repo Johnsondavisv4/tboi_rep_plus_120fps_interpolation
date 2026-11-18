@@ -27,6 +27,7 @@ set(SOURCE_FILES
     src/main.cpp
     src/Config.cpp
     src/InterpolationHook.cpp
+    src/RenderTiming.cpp
     src/dinput8.def
     src/resource.rc
 )

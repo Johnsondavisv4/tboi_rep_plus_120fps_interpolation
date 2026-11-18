@@ -1,14 +1,14 @@
-# The Binding of Isaac: 60 FPS Animation Interpolation
+# The Binding of Isaac: 120 FPS Interpolation
 
-An isolated, standalone implementation of the **60 FPS Animation Interpolation** feature from [REPENTOGON](https://github.com/TeamREPENTOGON/REPENTOGON) for vanilla **The Binding of Isaac: Repentance (v1.7.9b / J835)** and **Repentance+ (v1.9.7.15 / J374 and v1.9.7.17 / J460)**.
+This patch makes supported animations, sprite movement, and transitions between main menu screens smoother at up to **120 FPS**. Gameplay keeps its original speed. The patch builds on REPENTOGON's animation interpolation.
 
-Because this is a native proxy DLL (`dinput8.dll`) and not a Lua mod, it does not disable achievements and works during **Daily Runs** (use at your own discretion regarding any leaderboards or anti-cheat policies).
+Supported versions are **Repentance 1.7.9b (J835)** and **Repentance+ 1.9.7.15 (J374) and 1.9.7.17 (J460)**. The patch keeps achievements enabled and works during **Daily Runs** (use at your own discretion regarding any leaderboards or anti-cheat policies).
 
 ---
 
 ## Installation
 
-Choose the DLL built for your exact game version. Each DLL supports only its selected version; there is no automatic version detection.
+Download the ZIP that matches your exact game version from the Releases page.
 
 Copy `dinput8.dll` and `interpol.ini` into your game directory (next to `isaac-ng.exe`):
 ```
@@ -23,8 +23,9 @@ C:\Program Files (x86)\Steam\steamapps\common\The Binding of Isaac Rebirth\
 [Interpolation]
 Enabled=1
 ```
-* `Enabled=1`: 60 FPS interpolation on.
-* `Enabled=0`: Vanilla 30 FPS animations.
+
+* Set `Enabled=1` to turn the patch on.
+* Set `Enabled=0` to use the game's original animations and frame rate.
 
 ---
 
@@ -50,9 +51,9 @@ Each build produces `build/<game-version>/Release/dinput8.dll`. Keep the DLLs in
 
 Every push to `main` automatically builds **all versions in `game-versions.txt`** and publishes a complete GitHub release. No manual tag creation or publication is required. Releases use an automatically generated `build-<run-id>` tag pointing to the source commit. You can also run the workflow manually from `main`.
 
-Release titles use the last version listed in `game-versions.txt`, for example **60 FPS Interpolation — Repentance+ 1.9.7.17**, while each release includes all supported versions.
+Release titles use the last version listed in `game-versions.txt`, for example **120 FPS Interpolation — Repentance+ 1.9.7.17**, while each release includes all supported versions.
 
-Each release includes one ZIP per supported game version and `SHA256SUMS.txt`. The ZIP filenames identify the DLC and version, such as `isaac-interpolation-repentance-1.7.9b.zip` and `isaac-interpolation-repentance-plus-1.9.7.17.zip`. Each ZIP contains only `dinput8.dll` and `interpol.ini`. Publication happens only after every version builds and all packages are uploaded. Previous releases remain available.
+Each release includes one ZIP per supported game version and `SHA256SUMS.txt`. The ZIP filenames identify the DLC and version, such as `isaac-120fps-interpolation-repentance-1.7.9b.zip` and `isaac-120fps-interpolation-repentance-plus-1.9.7.17.zip`. Each ZIP contains only `dinput8.dll` and `interpol.ini`. Publication happens only after every version builds and all packages are uploaded. Previous releases remain available.
 
 To support a new game version:
 
@@ -67,3 +68,4 @@ The workflow recompiles and packages the entire list, including all older versio
 
 * **[REPENTOGON](https://github.com/TeamREPENTOGON/REPENTOGON)** - Original `InterpolV2` logic & concept.
 * **[MinHook](https://github.com/TsudaKageyu/minhook)** - API Hooking Library.
+* **[isaac-highfps](https://github.com/hunchcldev/isaac-highfps)** - Reference for keeping the engine update cadence independent from the renderer.
