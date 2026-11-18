@@ -5,6 +5,7 @@
 // Build-time profiles for each supported game executable.
 namespace GameVersion {
 inline constexpr uintptr_t ManagerStateOffset = 0x08;
+inline constexpr uintptr_t RoomRenderScrollOffset = 0x1204;
 
 #if (defined(GAME_VERSION_1_7_9b) + defined(GAME_VERSION_1_9_7_15) + defined(GAME_VERSION_1_9_7_17)) > 1
 #error Select only one game version
@@ -12,6 +13,8 @@ inline constexpr uintptr_t ManagerStateOffset = 0x08;
 // Repentance v1.7.9b.J835, verified against REPENTOGON's ZHL definitions.
 inline constexpr uintptr_t ManagerRva = 0x7FD680;
 inline constexpr uintptr_t FrameCountOffset = 0x4A264;
+inline constexpr uintptr_t GameRva = 0x7FD65C;
+inline constexpr uintptr_t GameRoomOffset = 0x18190;
 inline constexpr uint32_t ExecutableTimestamp = 0x63914F0A;
 inline constexpr uintptr_t UpdateRva = 0x4B0010;
 inline constexpr uintptr_t UpdateCallRva = 0x48BDF5;
@@ -43,6 +46,8 @@ inline constexpr char RenderFramePattern[] = "53 8B DC 83 EC 08 83 E4 F8 83 C4 0
 #elif defined(GAME_VERSION_1_9_7_15)
 inline constexpr uintptr_t ManagerRva = 0x80C09C; // J374
 inline constexpr uintptr_t FrameCountOffset = 0x4ABA8;
+inline constexpr uintptr_t GameRva = 0x80C074;
+inline constexpr uintptr_t GameRoomOffset = 0x18300;
 inline constexpr uint32_t ExecutableTimestamp = 0x68D45723;
 inline constexpr uintptr_t UpdateRva = 0x54CAD0;
 inline constexpr uintptr_t UpdateCallRva = 0x5295D8;
@@ -74,6 +79,8 @@ inline constexpr char RenderFramePattern[] = "53 8B DC 83 EC 08 83 E4 F8 83 C4 0
 #elif defined(GAME_VERSION_1_9_7_17)
 inline constexpr uintptr_t ManagerRva = 0x87169C; // J460
 inline constexpr uintptr_t FrameCountOffset = 0x4ABBC;
+inline constexpr uintptr_t GameRva = 0x871678;
+inline constexpr uintptr_t GameRoomOffset = 0x18300;
 inline constexpr uint32_t ExecutableTimestamp = 0x69E6E3A7;
 inline constexpr uintptr_t UpdateRva = 0x554CD0;
 inline constexpr uintptr_t UpdateCallRva = 0x5AB6F2;

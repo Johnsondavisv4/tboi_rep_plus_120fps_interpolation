@@ -37,9 +37,17 @@ struct SpriteMotion {
     const void* animation = nullptr;
     const void* callSite = nullptr;
     uint32_t screen = 0;
+    uint32_t scrollRevision = 0;
     unsigned clampMask = 0;
     Vector topLeftClamp;
     Vector bottomRightClamp;
+};
+
+struct RoomScroll {
+    uintptr_t room = 0;
+    Vector offset;
+    uint32_t changedFrame = 0;
+    uint32_t revision = 0;
 };
 
 static Vector DrawPosition(AnimationState* state, const void* callSite, const Vector& position,
@@ -50,6 +58,18 @@ static Vector DrawPosition(AnimationState* state, const void* callSite, const Ve
     const uintptr_t manager = GetManager();
     if (!manager) return position;
 
+    const uint32_t frame = GetFrameCount(manager);
+    const uintptr_t game = *reinterpret_cast<const uintptr_t*>(s_moduleBase + GameVersion::GameRva);
+    const uintptr_t room = game ? *reinterpret_cast<const uintptr_t*>(game + GameVersion::GameRoomOffset) : 0;
+    const Vector offset = room ? *reinterpret_cast<const Vector*>(room + GameVersion::RoomRenderScrollOffset) : Vector{};
+    static RoomScroll scroll;
+    if (scroll.room != room || !SamePosition(scroll.offset, offset)) {
+        scroll = {room, offset, frame, scroll.revision + 1};
+    }
+    // A camera step also moves stationary sprites in screen space. Keep their
+    // native positions with the backdrop, including repeat draws of this phase.
+    if (room && scroll.changedFrame == frame) return position;
+
     static std::array<SpriteMotion, 2048> sprites;
     const auto identity = reinterpret_cast<uintptr_t>(state);
     const auto call = reinterpret_cast<uintptr_t>(callSite);
@@ -59,11 +79,11 @@ static Vector DrawPosition(AnimationState* state, const void* callSite, const Ve
     const Vector topLeft = topLeftClamp ? *topLeftClamp : Vector{};
     const Vector bottomRight = bottomRightClamp ? *bottomRightClamp : Vector{};
     if (sprite.state != state || sprite.animation != state->_animation || sprite.callSite != callSite ||
-        sprite.screen != screen || sprite.clampMask != clampMask ||
+        sprite.screen != screen || sprite.scrollRevision != scroll.revision || sprite.clampMask != clampMask ||
         !SamePosition(sprite.topLeftClamp, topLeft) || !SamePosition(sprite.bottomRightClamp, bottomRight)) {
-        sprite = {VisualMotion{}, state, state->_animation, callSite, screen, clampMask, topLeft, bottomRight};
+        sprite = {VisualMotion{}, state, state->_animation, callSite, screen, scroll.revision, clampMask, topLeft, bottomRight};
     }
-    return sprite.motion.Sample(GetFrameCount(manager), position, 24.0f, GetRenderPhase());
+    return sprite.motion.Sample(frame, position, 24.0f, GetRenderPhase());
 }
 
 static void __cdecl Hooked_MenuRender() {
@@ -225,6 +245,7 @@ bool InitializeHooks() {
     const auto* pe = reinterpret_cast<const IMAGE_NT_HEADERS32*>(s_moduleBase + dos->e_lfanew);
     s_visualMotionSupported = pe->Signature == IMAGE_NT_SIGNATURE &&
         pe->FileHeader.TimeDateStamp == GameVersion::ExecutableTimestamp &&
+        pe->OptionalHeader.SizeOfImage >= GameVersion::GameRva + sizeof(uintptr_t) &&
         pe->OptionalHeader.SizeOfImage > GameVersion::MenuRenderRva + GameVersion::MenuRenderPrologue.size() &&
         pe->OptionalHeader.SizeOfImage > GameVersion::MenuManagerRva + sizeof(uintptr_t);
     if (s_visualMotionSupported) {
