@@ -167,7 +167,12 @@ void __cdecl HookedRender() {
     renderPhase = preparedPhase;
     const auto manager = *reinterpret_cast<const uintptr_t*>(imageBase + GameVersion::ManagerRva);
 
+#if defined(GAME_VERSION_1_7_9b)
+    const auto game = *reinterpret_cast<const uintptr_t*>(imageBase + GameVersion::GameRva);
+    NativeMenuInterpolation nativeInterpolation(manager, game);
+#else
     NativeMenuInterpolation nativeInterpolation(manager);
+#endif
     originalRender();
     renderPhase = 0;
 }

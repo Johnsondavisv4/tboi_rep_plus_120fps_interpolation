@@ -1,0 +1,119 @@
+{
+  "shared_offsets": {
+    "Manager": {"ManagerStateOffset": "0x8"},
+    "CharacterMenu": {"CharacterPaperOffset": "0x37C"},
+    "Room": {"RoomRenderScrollOffset": "0x1204"},
+    "StatsMenu": {"SecretsScrollInOffset": "0x134", "SecretsScrollListOffset": "0x138", "SecretsSelectionOffset": "0x13C"}
+  },
+  "versions": {
+    "1.7.9b": {
+      "rvas": {
+        "ManagerRva": "0x7FD680",
+        "GameRva": "0x7FD65C",
+        "UpdateRva": "0x4B0010",
+        "UpdateCallRva": "0x48BDF5",
+        "RenderRva": "0x4B0600",
+        "RenderCallRva": "0x48BDFA",
+        "MainLoopRva": "0x48BD40",
+        "FrameLimiterRva": "0x48BE2E",
+        "SwapIntervalFlagRva": "0x7C7B0D",
+        "VSyncRefreshCheckRva": "0x481312",
+        "SetVSyncRva": "0x481280",
+        "MenuManagerRva": "0x7FD688",
+        "MenuRenderRva": "0x4E19D0",
+        "CharacterWheelRenderRva": "0x4A7080",
+        "StatsRenderRva": "0x53F6A0",
+        "RenderFrameRva": "0x3E50",
+        "AnimationStateRenderRva": "0x5190"
+      },
+      "offsets": {
+        "Manager": {"FrameCountOffset": "0x4A264", "VideoOptionsOffset": "0x29DF8", "NativeInterpolationOffset": "0x29E73"},
+        "Game": {"GameRoomOffset": "0x18190", "GamePauseMenuOffset": "0x10203C"},
+        "VideoOptions": {"VSyncOptionOffset": "0x55"},
+        "MenuManager": {
+          "MenuScrollActiveOffset": "0x0",
+          "MenuSelectedOffset": "0x38",
+          "MenuViewOffset": "0x3C",
+          "CharacterMenuOffset": "0x101C00",
+          "StatsMenuOffset": "0x1030E0",
+          "MenuPositionOffsets": ["0x3C", "0x514", "0x644", "0x80FB4", "0x81318", "0x101C38", "0x102BF8", "0x102D5C", "0x102E88", "0x1030F4", "0x10D4B4", "0x10D718", "0x10D84C", "0x10D970", "0x10DA8C", "0x10DE0C", "0x10DF30"]
+        },
+        "CharacterMenu": {"CharacterWheelCountOffset": "0xB10", "CharacterWheelPositionsOffset": "0xC30", "CharacterWheelDepthsOffset": "0xC3C", "CharacterPageOffset": "0xDAC"},
+        "StatsMenu": {"SecretsSpriteOffset": "0xB38"},
+        "PauseScreen": {"PauseSpriteOffset": "0x2C"}
+      }
+    },
+    "1.9.7.15": {
+      "rvas": {
+        "ManagerRva": "0x80C09C",
+        "GameRva": "0x80C074",
+        "UpdateRva": "0x54CAD0",
+        "UpdateCallRva": "0x5295D8",
+        "RenderRva": "0x54D340",
+        "RenderCallRva": "0x5295DD",
+        "MainLoopRva": "0x529514",
+        "FrameLimiterRva": "0x529611",
+        "SwapIntervalFlagRva": "0x7D5795",
+        "VSyncRefreshCheckRva": "0x51E1BE",
+        "SetVSyncRva": "0x51E150",
+        "MenuManagerRva": "0x80D018",
+        "MenuRenderRva": "0x580E20",
+        "CharacterWheelRenderRva": "0x544120",
+        "StatsRenderRva": "0x5E2B00",
+        "RenderFrameRva": "0x45D0",
+        "AnimationStateRenderRva": "0x59F0"
+      },
+      "offsets": {
+        "Manager": {"FrameCountOffset": "0x4ABA8", "VideoOptionsOffset": "0x2A334", "NativeInterpolationOffset": "0x2A3B8"},
+        "Game": {"GameRoomOffset": "0x18300"},
+        "VideoOptions": {"VSyncOptionOffset": "0x67"},
+        "MenuManager": {
+          "MenuScrollActiveOffset": "0xC",
+          "MenuSelectedOffset": "0x40",
+          "MenuViewOffset": "0x44",
+          "CharacterMenuOffset": "0x1530",
+          "StatsMenuOffset": "0x2A14",
+          "MenuPositionOffsets": ["0x44", "0x1D4", "0x308", "0xB98", "0xDDC", "0x1568", "0x252C", "0x2690", "0x27BC", "0x2A28", "0xCEDC", "0xD158", "0xD28C", "0xD3B0", "0xD4CC", "0xD84C", "0xE690", "0xDCCC", "0xEBAC", "0xF5FC", "0xD970"]
+        },
+        "CharacterMenu": {"CharacterWheelCountOffset": "0xB18", "CharacterWheelPositionsOffset": "0xC38", "CharacterWheelDepthsOffset": "0xC44", "CharacterPageOffset": "0xDB4"},
+        "StatsMenu": {"SecretsSpriteOffset": "0xB48"}
+      }
+    },
+    "1.9.7.19": {
+      "rvas": {
+        "ManagerRva": "0x89A0D4",
+        "GameRva": "0x899538",
+        "UpdateRva": "0x56A650",
+        "UpdateCallRva": "0x5C2972",
+        "RenderRva": "0x56AF30",
+        "RenderCallRva": "0x546601",
+        "MainLoopRva": "0x546541",
+        "FrameLimiterRva": "0x54665D",
+        "SwapIntervalFlagRva": "0x89E894",
+        "VSyncRefreshCheckRva": "0x53ACC5",
+        "SetVSyncRva": "0x53AC10",
+        "MenuManagerRva": "0x89A8E4",
+        "MenuRenderRva": "0x5A1460",
+        "CharacterWheelRenderRva": "0x5614B0",
+        "StatsRenderRva": "0x604D00",
+        "RenderFrameRva": "0xA3F0",
+        "AnimationStateRenderRva": "0xB2F0"
+      },
+      "offsets": {
+        "Manager": {"FrameCountOffset": "0x4AE94", "VideoOptionsOffset": "0x2A614", "NativeInterpolationOffset": "0x2A698"},
+        "Game": {"GameRoomOffset": "0x18300"},
+        "VideoOptions": {"VSyncOptionOffset": "0x67"},
+        "MenuManager": {
+          "MenuScrollActiveOffset": "0xC",
+          "MenuSelectedOffset": "0x40",
+          "MenuViewOffset": "0x44",
+          "CharacterMenuOffset": "0x1534",
+          "StatsMenuOffset": "0x2A18",
+          "MenuPositionOffsets": ["0x44", "0x1D4", "0x304", "0xB98", "0xDE0", "0x156C", "0x2530", "0x2694", "0x27C0", "0x2A2C", "0xCEE0", "0xD15C", "0xD290", "0xD3B4", "0xD4D0", "0xD850", "0xE650", "0xDCCC", "0xEB6C", "0xF5BC", "0xD974"]
+        },
+        "CharacterMenu": {"CharacterWheelCountOffset": "0xB18", "CharacterWheelPositionsOffset": "0xC38", "CharacterWheelDepthsOffset": "0xC44", "CharacterPageOffset": "0xDB4"},
+        "StatsMenu": {"SecretsSpriteOffset": "0xB48"}
+      }
+    }
+  }
+}

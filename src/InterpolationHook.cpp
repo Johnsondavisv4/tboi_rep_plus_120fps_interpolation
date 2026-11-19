@@ -405,7 +405,9 @@ void __fastcall Hooked_RenderFrame(AnimationLayer* thisPtr, void* _edx, const Ve
     AnimationState* state = s_curAnimState;
     float renderFrame = s_curAnimationFrame;
 
-    if (!state && g_Config.Enabled && s_visualMotionSupported && s_menuRendering) {
+    if (!state && g_Config.Enabled && s_visualMotionSupported &&
+        (s_menuRendering || (animation && reinterpret_cast<uintptr_t>(animation) == GetPauseAnimation(
+            GetManager(), *reinterpret_cast<const uintptr_t*>(s_moduleBase + GameVersion::GameRva))))) {
         state = FindMenuLayerState(animation, thisPtr);
         if (state) renderFrame = PrepareDraw(state, _ReturnAddress(), position, &topLeftClamp, &bottomRightClamp).animationFrame;
     }

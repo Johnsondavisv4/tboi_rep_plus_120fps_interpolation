@@ -19,10 +19,21 @@ template<class T> struct MenuArray {
 };
 static_assert(sizeof(MenuArray<Vector>) == 12, "Menu vector header size mismatch");
 
+inline uintptr_t GetPauseAnimation(uintptr_t manager, uintptr_t game) {
+#if defined(GAME_VERSION_1_7_9b)
+    if (manager && game && *reinterpret_cast<const int*>(manager + GameVersion::ManagerStateOffset) == 2 &&
+        *reinterpret_cast<const int*>(game + GameVersion::GamePauseMenuOffset) != 0) {
+        return game + GameVersion::GamePauseMenuOffset + GameVersion::PauseSpriteOffset;
+    }
+#endif
+    return 0;
+}
+
 class NativeMenuInterpolation {
 public:
-    explicit NativeMenuInterpolation(uintptr_t manager) {
-        if (manager && *reinterpret_cast<const int*>(manager + GameVersion::ManagerStateOffset) == GameVersion::MainMenuManagerState) {
+    explicit NativeMenuInterpolation(uintptr_t manager, uintptr_t game = 0) {
+        if (manager && (*reinterpret_cast<const int*>(manager + GameVersion::ManagerStateOffset) == GameVersion::MainMenuManagerState ||
+                        GetPauseAnimation(manager, game))) {
             option = reinterpret_cast<uint8_t*>(manager + GameVersion::NativeInterpolationOffset);
             original = *option;
             *option = 1;
