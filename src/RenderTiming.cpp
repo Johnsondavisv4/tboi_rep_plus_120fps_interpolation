@@ -1,5 +1,7 @@
 #include "RenderTiming.h"
 #include "GameVersion.h"
+#include "InterpolationHook.h"
+#include "MenuMotion.h"
 
 #include <windows.h>
 #include <MinHook.h>
@@ -62,7 +64,7 @@ double PaceRender() {
         }
         now = ReadCounter();
     }
-    // The driver's swap interval can take longer than this minimum period.
+
     nextRender = now + counterFrequency / MaxRenderRate;
     return now;
 }
@@ -78,7 +80,7 @@ bool MatchesCode() {
 }
 
 bool ChangeFrameLimiter(uintptr_t manager) {
-    // This runs on the main loop thread before it reaches the two patch sites.
+
     if (!MatchesCode()) return false;
 
     auto jump = GameVersion::FrameLimiterBytes;
@@ -104,8 +106,6 @@ bool ChangeFrameLimiter(uintptr_t manager) {
     VirtualProtect(vsyncCheck, 1, vsyncProtection, &vsyncProtection);
     VirtualProtect(limiterSite, jump.size(), limiterProtection, &limiterProtection);
 
-    // Startup may have rejected VSync on a high-refresh display. Reapply the
-    // game's saved request through its own setter with the GL context current.
     const auto options = manager + GameVersion::VideoOptionsOffset;
     const bool requested = *reinterpret_cast<const uint8_t*>(options + GameVersion::VSyncOptionOffset) != 0;
     using SetVSync = void(__thiscall*)(void*, int);
@@ -116,7 +116,7 @@ bool ChangeFrameLimiter(uintptr_t manager) {
 bool PrepareFrame(double now) {
     const double period = counterFrequency / UpdateRate;
     if (nextUpdate == 0 || now - nextUpdate > counterFrequency * StallSeconds) nextUpdate = now;
-    // Account for QPC's integer precision at a fractional deadline.
+
     const bool advance = now + 1.0 >= nextUpdate;
     if (advance) nextUpdate += period;
     preparedPhase = static_cast<float>(std::clamp((now - (nextUpdate - period)) / period, 0.0, 1.0));
@@ -139,11 +139,21 @@ bool UpdateIsDue(const void* caller) {
 
 #if defined(GAME_VERSION_1_7_9b)
 int __cdecl HookedUpdate() {
-    return UpdateIsDue(_ReturnAddress()) ? originalUpdate() : 0;
+    const void* caller = _ReturnAddress();
+    if (!UpdateIsDue(caller)) return 0;
+    const int result = originalUpdate();
+    if (limiter == Limiter::Active &&
+        reinterpret_cast<uintptr_t>(caller) == imageBase + GameVersion::UpdateCallRva + CallSize) CaptureMenuMotion();
+    return result;
 }
 #else
 int __stdcall HookedUpdate(int advance) {
-    return UpdateIsDue(_ReturnAddress()) ? originalUpdate(advance) : 0;
+    const void* caller = _ReturnAddress();
+    if (!UpdateIsDue(caller)) return 0;
+    const int result = originalUpdate(advance);
+    if (limiter == Limiter::Active &&
+        reinterpret_cast<uintptr_t>(caller) == imageBase + GameVersion::UpdateCallRva + CallSize) CaptureMenuMotion();
+    return result;
 }
 #endif
 
@@ -154,8 +164,10 @@ void __cdecl HookedRender() {
         return;
     }
 
-    // All draws within this pass use the same time, including nested draws.
     renderPhase = preparedPhase;
+    const auto manager = *reinterpret_cast<const uintptr_t*>(imageBase + GameVersion::ManagerRva);
+
+    NativeMenuInterpolation nativeInterpolation(manager);
     originalRender();
     renderPhase = 0;
 }
@@ -167,7 +179,7 @@ bool Calls(uintptr_t callerRva, uintptr_t targetRva) {
     return call[0] == 0xE8 && callerRva + CallSize + displacement == targetRva;
 }
 
-} // namespace
+}
 
 void InitializeRenderTiming(uintptr_t moduleBase, std::size_t imageSize) {
     if (imageSize < GameVersion::FrameLimiterRva + GameVersion::FrameLimiterBytes.size() ||
@@ -176,29 +188,34 @@ void InitializeRenderTiming(uintptr_t moduleBase, std::size_t imageSize) {
         imageSize < GameVersion::RenderCallRva + CallSize ||
         imageSize < GameVersion::UpdateRva + sizeof UpdatePrologue ||
         imageSize < GameVersion::RenderRva + GameVersion::RenderPrologue.size() ||
-        imageSize < GameVersion::ManagerRva + sizeof(uintptr_t)) return;
+        imageSize < GameVersion::ManagerRva + sizeof(uintptr_t)) {
+        return;
+    }
 
     imageBase = moduleBase;
     auto* update = reinterpret_cast<void*>(imageBase + GameVersion::UpdateRva);
     auto* render = reinterpret_cast<void*>(imageBase + GameVersion::RenderRva);
     const auto& renderPrologue = GameVersion::RenderPrologue;
-    if (!MatchesCode() || !Calls(GameVersion::UpdateCallRva, GameVersion::UpdateRva) ||
-        !Calls(GameVersion::RenderCallRva, GameVersion::RenderRva) ||
-        std::memcmp(update, UpdatePrologue, sizeof UpdatePrologue) != 0 ||
-        std::memcmp(render, renderPrologue.data(), renderPrologue.size()) != 0) return;
+    const bool matchesLimiter = MatchesCode();
+    const bool matchesUpdateCall = Calls(GameVersion::UpdateCallRva, GameVersion::UpdateRva);
+    const bool matchesRenderCall = Calls(GameVersion::RenderCallRva, GameVersion::RenderRva);
+    const bool matchesUpdate = std::memcmp(update, UpdatePrologue, sizeof UpdatePrologue) == 0;
+    const bool matchesRender = std::memcmp(render, renderPrologue.data(), renderPrologue.size()) == 0;
+    if (!matchesLimiter || !matchesUpdateCall || !matchesRenderCall || !matchesUpdate || !matchesRender) return;
 
     LARGE_INTEGER frequency;
     if (!QueryPerformanceFrequency(&frequency)) return;
     counterFrequency = static_cast<double>(frequency.QuadPart);
-    if (MH_CreateHook(render, reinterpret_cast<void*>(&HookedRender),
-                      reinterpret_cast<void**>(&originalRender)) != MH_OK) return;
-    if (MH_CreateHook(update, reinterpret_cast<void*>(&HookedUpdate),
-                      reinterpret_cast<void**>(&originalUpdate)) != MH_OK) {
+    const auto renderStatus = MH_CreateHook(render, reinterpret_cast<void*>(&HookedRender),
+                                            reinterpret_cast<void**>(&originalRender));
+    if (renderStatus != MH_OK) return;
+    const auto updateStatus = MH_CreateHook(update, reinterpret_cast<void*>(&HookedUpdate),
+                                            reinterpret_cast<void**>(&originalUpdate));
+    if (updateStatus != MH_OK) {
         MH_RemoveHook(render);
         return;
     }
 
-    // The main-loop jump and the hooks must share the lifetime of the process.
     HMODULE self;
     if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
                             reinterpret_cast<LPCWSTR>(&HookedRender), &self) ||

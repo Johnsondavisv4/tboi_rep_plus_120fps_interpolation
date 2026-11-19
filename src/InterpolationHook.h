@@ -3,3 +3,4 @@
 
 bool InitializeHooks();
 void UninitializeHooks();
+void CaptureMenuMotion();

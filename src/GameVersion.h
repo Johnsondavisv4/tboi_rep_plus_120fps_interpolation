@@ -2,15 +2,18 @@
 #include <array>
 #include <cstdint>
 
-// Build-time profiles for each supported game executable.
 namespace GameVersion {
 inline constexpr uintptr_t ManagerStateOffset = 0x08;
+
+inline constexpr int MainMenuManagerState = 1;
+inline constexpr uintptr_t CharacterPaperOffset = 0x37C;
+inline constexpr int CharacterPaperLayerId = 3;
 inline constexpr uintptr_t RoomRenderScrollOffset = 0x1204;
 
 #if (defined(GAME_VERSION_1_7_9b) + defined(GAME_VERSION_1_9_7_15) + defined(GAME_VERSION_1_9_7_17)) > 1
 #error Select only one game version
 #elif defined(GAME_VERSION_1_7_9b)
-// Repentance v1.7.9b.J835, verified against REPENTOGON's ZHL definitions.
+
 inline constexpr uintptr_t ManagerRva = 0x7FD680;
 inline constexpr uintptr_t FrameCountOffset = 0x4A264;
 inline constexpr uintptr_t GameRva = 0x7FD65C;
@@ -39,12 +42,32 @@ inline constexpr uintptr_t MenuRenderRva = 0x4E19D0;
 inline constexpr uintptr_t MenuScrollActiveOffset = 0x00;
 inline constexpr uintptr_t MenuSelectedOffset = 0x38;
 inline constexpr uintptr_t MenuViewOffset = 0x3C;
+inline constexpr uintptr_t CharacterMenuOffset = 0x101C00;
+inline constexpr uintptr_t CharacterWheelCountOffset = 0xB10;
+inline constexpr uintptr_t CharacterWheelPositionsOffset = 0xC30;
+inline constexpr uintptr_t CharacterWheelDepthsOffset = 0xC3C;
+inline constexpr uintptr_t CharacterPageOffset = 0xDAC;
+inline constexpr uintptr_t NativeInterpolationOffset = 0x29E73;
+inline constexpr uintptr_t StatsMenuOffset = 0x1030E0;
+inline constexpr uintptr_t SecretsSpriteOffset = 0xB44;
+inline constexpr uintptr_t CharacterWheelRenderRva = 0x4A7080;
+inline constexpr uintptr_t StatsRenderRva = 0x53F6A0;
+inline constexpr std::array<uint8_t, 9> CharacterWheelPrologue = {0x55, 0x8B, 0xEC, 0x64, 0xA1, 0x2C, 0, 0, 0};
+inline constexpr std::array<uint8_t, 6> StatsRenderPrologue = {0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x5C};
+
+inline constexpr std::array<uintptr_t, 17> MenuPositionOffsets = {
+    MenuViewOffset, 0x514, 0x634 + 0x10, 0x80FAC + 8, 0x8130C + 0xC,
+    CharacterMenuOffset + 0x38, 0x102BEC + 0xC, 0x102D50 + 0xC,
+    0x102E80 + 8, StatsMenuOffset + 0x14, 0x10D4A4 + 0x10,
+    0x10D710 + 8, 0x10D840 + 0xC, 0x10D968 + 8, 0x10DA8C, 0x10DE04 + 8,
+    0x10DF28 + 8
+};
 inline constexpr std::array<uint8_t, 12> MenuRenderPrologue = {
     0x55, 0x8B, 0xEC, 0x83, 0xE4, 0xF8, 0x81, 0xEC, 0xE0, 0x00, 0x00, 0x00
 };
 inline constexpr char RenderFramePattern[] = "53 8B DC 83 EC 08 83 E4 F8 83 C4 04 55 8B 6B 04 89 6C 24 04 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 53 81 EC 90 01 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 EC 56 57 50 8D 45 F4 64 A3 00 00 00 00 80 79 0C 00";
 #elif defined(GAME_VERSION_1_9_7_15)
-inline constexpr uintptr_t ManagerRva = 0x80C09C; // J374
+inline constexpr uintptr_t ManagerRva = 0x80C09C;
 inline constexpr uintptr_t FrameCountOffset = 0x4ABA8;
 inline constexpr uintptr_t GameRva = 0x80C074;
 inline constexpr uintptr_t GameRoomOffset = 0x18300;
@@ -72,12 +95,33 @@ inline constexpr uintptr_t MenuRenderRva = 0x580E20;
 inline constexpr uintptr_t MenuScrollActiveOffset = 0x0C;
 inline constexpr uintptr_t MenuSelectedOffset = 0x40;
 inline constexpr uintptr_t MenuViewOffset = 0x44;
+inline constexpr uintptr_t CharacterMenuOffset = 0x1530;
+inline constexpr uintptr_t CharacterWheelCountOffset = 0xB18;
+inline constexpr uintptr_t CharacterWheelPositionsOffset = 0xC38;
+inline constexpr uintptr_t CharacterWheelDepthsOffset = 0xC44;
+inline constexpr uintptr_t CharacterPageOffset = 0xDB4;
+inline constexpr uintptr_t NativeInterpolationOffset = 0x2A3B8;
+inline constexpr uintptr_t StatsMenuOffset = 0x2A14;
+inline constexpr uintptr_t SecretsSpriteOffset = 0xB48;
+inline constexpr uintptr_t CharacterWheelRenderRva = 0x544120;
+inline constexpr uintptr_t StatsRenderRva = 0x5E2B00;
+inline constexpr std::array<uint8_t, 12> CharacterWheelPrologue = {0x55, 0x8B, 0xEC, 0x83, 0xE4, 0xF8, 0x64, 0xA1, 0x2C, 0, 0, 0};
+inline constexpr std::array<uint8_t, 5> StatsRenderPrologue = {0x55, 0x8B, 0xEC, 0x6A, 0xFF};
+inline constexpr std::array<uintptr_t, 21> MenuPositionOffsets = {
+    MenuViewOffset, 0x1D4, 0x2F8 + 0x10, 0xB90 + 8, 0xDD0 + 0xC,
+    CharacterMenuOffset + 0x38, 0x2518 + 0x14, 0x2684 + 0xC,
+    0x27B4 + 8, StatsMenuOffset + 0x14, 0xCEC8 + 0x14,
+    0xD150 + 8, 0xD280 + 0xC, 0xD3A8 + 8, 0xD4CC, 0xD844 + 8,
+    0xE690, 0xDA98 + 0x234, 0xEB98 + 0x14, 0xEE20 + 0x7DC,
+
+    0xD968 + 8
+};
 inline constexpr std::array<uint8_t, 16> MenuRenderPrologue = {
     0x53, 0x8B, 0xDC, 0x83, 0xEC, 0x08, 0x83, 0xE4, 0xF8, 0x83, 0xC4, 0x04, 0x55, 0x8B, 0x6B, 0x04
 };
 inline constexpr char RenderFramePattern[] = "53 8B DC 83 EC 08 83 E4 F8 83 C4 04 55 8B 6B ?? 89 6C 24 ?? 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 53 81 EC 98 01 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 ?? 56 57 50";
 #elif defined(GAME_VERSION_1_9_7_17)
-inline constexpr uintptr_t ManagerRva = 0x87169C; // J460
+inline constexpr uintptr_t ManagerRva = 0x87169C;
 inline constexpr uintptr_t FrameCountOffset = 0x4ABBC;
 inline constexpr uintptr_t GameRva = 0x871678;
 inline constexpr uintptr_t GameRoomOffset = 0x18300;
@@ -106,6 +150,28 @@ inline constexpr uintptr_t MenuRenderRva = 0x58A040;
 inline constexpr uintptr_t MenuScrollActiveOffset = 0x0C;
 inline constexpr uintptr_t MenuSelectedOffset = 0x40;
 inline constexpr uintptr_t MenuViewOffset = 0x44;
+inline constexpr uintptr_t CharacterMenuOffset = 0x1534;
+inline constexpr uintptr_t CharacterWheelCountOffset = 0xB18;
+inline constexpr uintptr_t CharacterWheelPositionsOffset = 0xC38;
+inline constexpr uintptr_t CharacterWheelDepthsOffset = 0xC44;
+inline constexpr uintptr_t CharacterPageOffset = 0xDB4;
+inline constexpr uintptr_t NativeInterpolationOffset = 0x2A3C0;
+inline constexpr uintptr_t StatsMenuOffset = 0x2A18;
+inline constexpr uintptr_t SecretsSpriteOffset = 0xB48;
+inline constexpr uintptr_t CharacterWheelRenderRva = 0x54BEE0;
+inline constexpr uintptr_t StatsRenderRva = 0x5ECDD0;
+inline constexpr std::array<uint8_t, 9> CharacterWheelPrologue = {0x55, 0x8B, 0xEC, 0x83, 0xE4, 0xF8, 0x83, 0xEC, 0x7C};
+inline constexpr std::array<uint8_t, 16> StatsRenderPrologue = {
+    0x53, 0x8B, 0xDC, 0x83, 0xEC, 0x08, 0x83, 0xE4, 0xF8, 0x83, 0xC4, 0x04, 0x55, 0x8B, 0x6B, 0x04
+};
+inline constexpr std::array<uintptr_t, 21> MenuPositionOffsets = {
+    MenuViewOffset, 0x1D4, 0x2F4 + 0x10, 0xB90 + 8, 0xDD4 + 0xC,
+    CharacterMenuOffset + 0x38, 0x251C + 0x14, 0x2688 + 0xC,
+    0x27B8 + 8, StatsMenuOffset + 0x14, 0xCECC + 0x14,
+    0xD154 + 8, 0xD284 + 0xC, 0xD3AC + 8, 0xD4D0, 0xD848 + 8,
+    0xE648, 0xDA98 + 0x234, 0xEB50 + 0x14, 0xEDD8 + 0x7DC,
+    0xD96C + 8
+};
 inline constexpr std::array<uint8_t, 16> MenuRenderPrologue = {
     0x53, 0x8B, 0xDC, 0x83, 0xEC, 0x08, 0x83, 0xE4, 0xF8, 0x83, 0xC4, 0x04, 0x55, 0x8B, 0x6B, 0x04
 };

@@ -20,7 +20,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# MinHook
 add_subdirectory(vendor/minhook)
 
 set(SOURCE_FILES
@@ -45,7 +44,6 @@ target_link_libraries(dinput8 PRIVATE
     psapi
 )
 
-# Output name must be dinput8.dll with standard security flags
 set_target_properties(dinput8 PROPERTIES
     OUTPUT_NAME "dinput8"
     PREFIX ""

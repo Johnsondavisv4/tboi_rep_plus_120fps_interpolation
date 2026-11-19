@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IsaacTypes.h"
+#include <algorithm>
 
 inline bool SamePosition(const Vector& left, const Vector& right) {
     return left.x == right.x && left.y == right.y;
@@ -15,56 +16,47 @@ public:
         }
 
         if (sampled && frame == lastFrame) {
-            // A shared sprite can be drawn in several places in a single frame.
-            if (!SamePosition(position, lastPosition)) ambiguous = true;
-            return ambiguous ? position : PreviewAt(phase);
-        }
 
-        if (!sampled || frame - lastFrame != 1 || ambiguous) {
-            *this = {};
-            sampled = true;
-            lastFrame = frame;
-            lastPreview = lastPosition = position;
-            return position;
+            if (!SamePosition(position, lastPosition)) ambiguous = true;
+            return ambiguous ? position : PreviewAt(frame, phase);
         }
 
         const Vector step{position.x - lastPosition.x, position.y - lastPosition.y};
-        const bool held = SamePosition(position, lastPosition);
         const bool continuous = step.x * step.x + step.y * step.y <= maximumStep * maximumStep;
-
-        Vector preview = position;
-        Vector perPhase;
-        // Keep the existing half-step on phases where the game repeats a pose.
-        // Additional draws use the time since this phase, even for 60 Hz motion.
-        if (held && measuredStep) {
-            perPhase = lastVelocity;
-            preview.x += perPhase.x;
-            preview.y += perPhase.y;
-        } else if (!held && continuous) {
-            const float scale = lastHeld ? 0.5f : 1.0f;
-            perPhase = {step.x * scale, step.y * scale};
+        if (!sampled || frame - lastFrame != 1 || ambiguous || !continuous) {
+            *this = {};
+            sampled = true;
+            lastFrame = changedFrame = frame;
+            previous = lastPosition = position;
+            return position;
         }
 
-        measuredStep = !held && lastHeld && continuous;
-        lastVelocity = perPhase;
-        lastHeld = held;
+        if (!SamePosition(position, lastPosition)) {
+            const uint32_t elapsed = frame - changedFrame;
+
+            if (elapsed <= 2) interval = elapsed;
+            previous = lastPosition;
+            changedFrame = frame;
+        }
+
         lastFrame = frame;
         lastPosition = position;
-        lastPreview = preview;
-        return PreviewAt(phase);
+        return PreviewAt(frame, phase);
     }
 
 private:
-    Vector PreviewAt(float phase) const {
-        return {lastPreview.x + lastVelocity.x * phase, lastPreview.y + lastVelocity.y * phase};
+    Vector PreviewAt(uint32_t frame, float phase) const {
+        const float elapsed = static_cast<float>(frame - changedFrame) + phase;
+        const float blend = std::clamp(elapsed / static_cast<float>(interval), 0.0f, 1.0f);
+        return {previous.x + (lastPosition.x - previous.x) * blend,
+                previous.y + (lastPosition.y - previous.y) * blend};
     }
 
     uint32_t lastFrame = 0;
+    uint32_t changedFrame = 0;
+    uint32_t interval = 1;
     Vector lastPosition;
-    Vector lastPreview;
-    Vector lastVelocity;
+    Vector previous;
     bool sampled = false;
-    bool lastHeld = false;
-    bool measuredStep = false;
     bool ambiguous = false;
 };

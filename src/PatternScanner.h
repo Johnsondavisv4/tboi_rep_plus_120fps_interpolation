@@ -22,7 +22,6 @@ public:
 
         std::vector<int> signature;
 
-        // Check if pattern is continuous (no spaces) or space-separated
         if (pattern.find(' ') != std::string::npos) {
             std::stringstream ss(pattern);
             std::string byteStr;
@@ -34,14 +33,14 @@ public:
                 }
             }
         } else {
-            // Continuous format, e.g. "538bdc??896c"
+
             for (size_t i = 0; i < pattern.length(); i += 2) {
                 if (i + 1 >= pattern.length()) break;
                 if (pattern[i] == '?' && pattern[i + 1] == '?') {
                     signature.push_back(-1);
                 } else if (pattern[i] == '?') {
                     signature.push_back(-1);
-                    i--; // single '?' step
+                    i--;
                 } else {
                     std::string byteStr = pattern.substr(i, 2);
                     signature.push_back(std::stoi(byteStr, nullptr, 16));
