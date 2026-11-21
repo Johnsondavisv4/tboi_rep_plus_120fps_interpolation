@@ -51,17 +51,17 @@ Each build produces `build/<game-version>/Release/dinput8.dll`. Keep the DLLs in
 
 ## Releases (GitHub Actions)
 
-Every push to `main` automatically builds **all versions in `game-versions.txt`** and publishes a complete GitHub release. No manual tag creation or publication is required. Releases use an automatically generated `build-<run-id>` tag pointing to the source commit. You can also run the workflow manually from `main`.
+Start the workflow manually from GitHub Actions on `main`. Each run builds **all versions in `game-versions.txt`** and publishes a complete GitHub release. Releases use an automatically generated `build-<run-id>` tag pointing to the source commit.
 
 Release titles use the last version listed in `game-versions.txt`, for example **120 FPS Interpolation — Repentance+ 1.9.7.19**, while each release includes all supported versions.
 
-Each release includes one ZIP per supported game version and `SHA256SUMS.txt`. The ZIP filenames identify the DLC and version, such as `isaac-120fps-interpolation-repentance-1.7.9b.zip` and `isaac-120fps-interpolation-repentance-plus-1.9.7.19.zip`. Each ZIP contains only `dinput8.dll` and `interpol.ini`. Publication happens only after every version builds and all packages are uploaded. Previous releases remain available.
+Each release includes one ZIP per supported game version and `SHA256SUMS.txt`. The ZIP filenames identify the DLC and version, such as `isaac-120fps-interpolation-repentance-1.7.9b.zip` and `isaac-120fps-interpolation-repentance-plus-1.9.7.19.zip`. Each ZIP contains only `dinput8.dll` and `interpol.ini`. After every version builds and its packages are ready, the workflow deletes all previous releases and tags before publishing the new release.
 
 To support a new game version:
 
 1. Add its addresses and patterns to `src/GameVersion.h`, keeping existing profiles.
 2. Append its version to `game-versions.txt` (oldest to newest).
-3. Commit and push to `main`.
+3. Commit and push to `main`, then start the release workflow manually from GitHub Actions.
 
 The workflow recompiles and packages the entire list, including all older versions. Existing profiles continue to use their original values; rebuilding does not guarantee byte-identical DLLs if shared code or the compiler changes. CMake defaults to the last listed version for a fresh build directory.
 
