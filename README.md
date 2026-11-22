@@ -2,7 +2,7 @@
 
 This patch makes supported animations, sprite movement, and transitions between main menu screens smoother at up to **120 FPS**. Gameplay keeps its original speed. The patch builds on REPENTOGON's animation interpolation.
 
-Supported versions are **Repentance 1.7.9b (J835)** and **Repentance+ 1.9.7.15 (J374) and 1.9.7.19 (J510)**. The patch keeps achievements enabled and works during **Daily Runs** (use at your own discretion regarding any leaderboards or anti-cheat policies).
+Supported versions are **Repentance 1.7.9b (J835)** and **Repentance+ 1.9.7.15 (J374) and 1.9.7.19 (J511)**. The patch keeps achievements enabled and works during **Daily Runs** (use at your own discretion regarding any leaderboards or anti-cheat policies).
 
 ---
 
