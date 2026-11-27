@@ -2,13 +2,13 @@
 
 This patch makes supported animations, sprite movement, and transitions between main menu screens smoother at up to **120 FPS**. Gameplay keeps its original speed. The patch builds on REPENTOGON's animation interpolation.
 
-Supported versions are **Repentance 1.7.9b (J835)** and **Repentance+ 1.9.7.15 (J374) and 1.9.7.19 (J511)**. The patch keeps achievements enabled and works during **Daily Runs** (use at your own discretion regarding any leaderboards or anti-cheat policies).
+Fixed builds are available for **Repentance 1.7.9b (J835)** and **Repentance+ 1.9.7.15 (J374)**. The updater can build the patch for newer Steam versions of Repentance+. The patch keeps achievements enabled and works during **Daily Runs** (use at your own discretion regarding any leaderboards or anti-cheat policies).
 
 ---
 
 ## Installation
 
-Download the ZIP that matches your exact game version from the Releases page.
+Download the ZIP that matches your exact game version from the Releases page. You can also build for your installed version of Repentance+ using the [Steam update build instructions](#build-for-a-steam-update).
 
 Copy `dinput8.dll` and `interpol.ini` into your game directory (next to `isaac-ng.exe`):
 ```
@@ -37,33 +37,36 @@ cmake --build build/1.7.9b --config Release
 
 cmake -B build/1.9.7.15 -A Win32 "-DGAME_VERSION=1.9.7.15"
 cmake --build build/1.9.7.15 --config Release
-
-cmake -B build/1.9.7.19 -A Win32 "-DGAME_VERSION=1.9.7.19"
-cmake --build build/1.9.7.19 --config Release
 ```
 Each build produces `build/<game-version>/Release/dinput8.dll`. Keep the DLLs in separate versioned packages with `interpol.ini` and retain the name `dinput8.dll` when installing.
 
-`GAME_VERSION` defaults to `1.9.7.19`. Unsupported values are rejected by CMake. Shared interpolation code lives in `src/InterpolationHook.cpp`; version-specific addresses and patterns live in `src/GameVersion.h`.
+`GAME_VERSION` defaults to `1.9.7.15` for a fresh CMake build. Shared interpolation code lives in `src/InterpolationHook.cpp`. Fixed addresses and patterns live in `src/GameVersion.h`.
 
-[memory-addresses.json](memory-addresses.json) lists each version's RVAs and structure offsets. Keep it synchronized with the source profiles.
+[memory-addresses.json](memory-addresses.json) lists the RVAs and structure offsets for the fixed profiles.
+
+## Build for a Steam update
+
+After Steam updates Repentance+, run this from the repository in PowerShell.
+
+```powershell
+.\update_interpolator.ps1
+```
+
+The script uses Python 3.9 or later, CMake and Visual Studio 2022 with the C++ workload. It reads the exact Steam game version and verifies its addresses. It compiles from a generated profile and saves that profile to `tools/latest/GeneratedGameVersion.h` after a successful build. The profile records the game version and executable SHA-256.
+
+Find `dinput8.dll` under `build/<release-version>/Release/`, for example `build/1.9.7.20/Release/`. The default `interpol.ini` is in the repository root. The scanner uses 1.9.7.16.J450 as its reference for Steam updates.
+
+Use `-Executable` to select a specific copy of `isaac-ng.exe`. Use `-VerifyOnly` to inspect the generated profile in `build/validation/`. The validation directory also holds reports for failed builds.
 
 ---
 
 ## Releases (GitHub Actions)
 
-Start the workflow manually from GitHub Actions on `main`. Each run builds **all versions in `game-versions.txt`** and publishes a complete GitHub release. Releases use an automatically generated `build-<run-id>` tag pointing to the source commit.
+Start the workflow manually from GitHub Actions on `main`. It compiles the fixed versions in `game-versions.txt` and the Repentance+ version in `tools/latest/GeneratedGameVersion.h`. The workflow uses the profile's numeric release version for the build directory, ZIP and release title. Releases use an automatically generated `build-<run-id>` tag pointing to the source commit.
 
-Release titles use the last version listed in `game-versions.txt`, for example **120 FPS Interpolation — Repentance+ 1.9.7.19**, while each release includes all supported versions.
+After a Steam update, run `update_interpolator.ps1` and include the refreshed profile in the commit used for the release.
 
-Each release includes one ZIP per supported game version and `SHA256SUMS.txt`. The ZIP filenames identify the DLC and version, such as `isaac-120fps-interpolation-repentance-1.7.9b.zip` and `isaac-120fps-interpolation-repentance-plus-1.9.7.19.zip`. Each ZIP contains only `dinput8.dll` and `interpol.ini`. After every version builds and its packages are ready, the workflow deletes all previous releases and tags before publishing the new release.
-
-To support a new game version:
-
-1. Add its addresses and patterns to `src/GameVersion.h`, keeping existing profiles.
-2. Append its version to `game-versions.txt` (oldest to newest).
-3. Commit and push to `main`, then start the release workflow manually from GitHub Actions.
-
-The workflow recompiles and packages the entire list, including all older versions. Existing profiles continue to use their original values; rebuilding does not guarantee byte-identical DLLs if shared code or the compiler changes. CMake defaults to the last listed version for a fresh build directory.
+Each release includes one ZIP per game version and `SHA256SUMS.txt`. Each ZIP contains `dinput8.dll` and `interpol.ini`. After all packages are ready, the workflow deletes all previous releases and tags before publishing the new release.
 
 ---
 ## Credits

@@ -90,49 +90,6 @@
         "Player": {"PlayerRenderPositionOffset": "0x1A4"},
         "StatsMenu": {"SecretsSpriteOffset": "0xB48"}
       }
-    },
-    "1.9.7.19": {
-      "rvas": {
-        "ManagerRva": "0x89A094",
-        "GameRva": "0x8994F8",
-        "UpdateRva": "0x56A4F0",
-        "UpdateCallRva": "0x5C27D2",
-        "RenderRva": "0x56ADD0",
-        "RenderCallRva": "0x546451",
-        "MainLoopRva": "0x546391",
-        "FrameLimiterRva": "0x5464AD",
-        "SwapIntervalFlagRva": "0x89E854",
-        "VSyncRefreshCheckRva": "0x53AB25",
-        "SetVSyncRva": "0x53AA70",
-        "MenuManagerRva": "0x89A8A4",
-        "MenuRenderRva": "0x5A12B0",
-        "OptionsRenderRva": "0x5CA660",
-        "PlayerChargeBarsRenderRva": "0x366C90",
-        "PlayerBodyRenderRva": "0x393FE0",
-        "PlayerIsHoldingItemRva": "0x3C8000",
-        "FamiliarChargeBarRenderRva": "0x239010",
-        "CharacterWheelRenderRva": "0x5613F0",
-        "StatsRenderRva": "0x604BA0",
-        "RenderFrameRva": "0xA3F0",
-        "AnimationStateRenderRva": "0xB2F0"
-      },
-      "offsets": {
-        "Manager": {"FrameCountOffset": "0x4AE8C", "VideoOptionsOffset": "0x2A60C", "NativeInterpolationOffset": "0x2A690"},
-        "Game": {"GameRoomOffset": "0x18300"},
-        "VideoOptions": {"VSyncOptionOffset": "0x67"},
-        "MenuManager": {
-          "MenuScrollActiveOffset": "0xC",
-          "MenuSelectedOffset": "0x40",
-          "MenuViewOffset": "0x44",
-          "CharacterMenuOffset": "0x1534",
-          "StatsMenuOffset": "0x2A18",
-          "MenuPositionOffsets": ["0x44", "0x1D4", "0x304", "0xB98", "0xDE0", "0x156C", "0x2530", "0x2694", "0x27C0", "0x2A2C", "0xCEE0", "0xD15C", "0xD290", "0xD3B4", "0xD4D0", "0xD850", "0xE650", "0xDCCC", "0xEB6C", "0xF5BC", "0xD974"]
-        },
-        "CharacterMenu": {"CharacterWheelCountOffset": "0xB18", "CharacterWheelPositionsOffset": "0xC38", "CharacterWheelDepthsOffset": "0xC44", "CharacterPageOffset": "0xDB4"},
-        "OptionsMenu": {"OptionsPositionOffset": "0x14"},
-        "Player": {"PlayerRenderPositionOffset": "0x1A4"},
-        "StatsMenu": {"SecretsSpriteOffset": "0xB48"}
-      }
     }
   }
 }

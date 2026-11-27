@@ -46,7 +46,7 @@ static OptionsRender_t oOptionsRender = nullptr;
 
 using ChargeBarsRender_t = void(__thiscall*)(void*, const Vector&);
 static ChargeBarsRender_t oPlayerChargeBarsRender = nullptr;
-#if defined(GAME_VERSION_1_9_7_19)
+#if defined(GAME_HAS_FAMILIAR_CHARGE_BARS)
 static ChargeBarsRender_t oFamiliarChargeBarRender = nullptr;
 #endif
 
@@ -574,24 +574,31 @@ void __fastcall Hooked_RenderFrame(AnimationLayer* thisPtr, void* _edx, const Ve
 }
 
 bool InitializeHooks() {
+    s_moduleBase = (uintptr_t)GetModuleHandleA(nullptr);
+    const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(s_moduleBase);
+    const auto* pe = reinterpret_cast<const IMAGE_NT_HEADERS32*>(s_moduleBase + dos->e_lfanew);
+#if defined(GAME_VERSION_GENERATED)
+    if (pe->Signature != IMAGE_NT_SIGNATURE ||
+        pe->FileHeader.TimeDateStamp != GameVersion::ExecutableTimestamp ||
+        pe->OptionalHeader.SizeOfImage != GameVersion::ExecutableImageSize ||
+        pe->OptionalHeader.CheckSum != GameVersion::ExecutableChecksum) {
+        return false;
+    }
+#endif
     if (MH_Initialize() != MH_OK) {
         return false;
     }
-
-    s_moduleBase = (uintptr_t)GetModuleHandleA(nullptr);
 
     uintptr_t pRenderFrame = PatternScanner::FindPattern(GameVersion::RenderFramePattern);
     if (pRenderFrame) {
         MH_CreateHook((LPVOID)pRenderFrame, (LPVOID)&Hooked_RenderFrame, (LPVOID*)&oRenderFrame);
     }
 
-    uintptr_t pAnimStateRender = PatternScanner::FindPattern("55 8B EC 83 E4 F8 51 53 56 57 8B F9 8B 57 04 85 D2 74 34 33 F6 39 72 1C");
+    uintptr_t pAnimStateRender = PatternScanner::FindPattern(GameVersion::AnimationStateRenderPattern);
     if (pAnimStateRender) {
         MH_CreateHook((LPVOID)pAnimStateRender, (LPVOID)&Hooked_AnimationStateRender, (LPVOID*)&oAnimationStateRender);
     }
 
-    const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(s_moduleBase);
-    const auto* pe = reinterpret_cast<const IMAGE_NT_HEADERS32*>(s_moduleBase + dos->e_lfanew);
     s_visualMotionSupported = pe->Signature == IMAGE_NT_SIGNATURE &&
         pe->FileHeader.TimeDateStamp == GameVersion::ExecutableTimestamp &&
         pe->OptionalHeader.SizeOfImage >= GameVersion::GameRva + sizeof(uintptr_t) &&
@@ -624,7 +631,7 @@ bool InitializeHooks() {
             installDrawHook(GameVersion::PlayerBodyRenderRva, GameVersion::PlayerBodyRenderPrologue,
                 reinterpret_cast<void*>(&Hooked_PlayerBodyRender), reinterpret_cast<void**>(&oPlayerBodyRender));
         }
-#if defined(GAME_VERSION_1_9_7_19)
+#if defined(GAME_HAS_FAMILIAR_CHARGE_BARS)
         installDrawHook(GameVersion::FamiliarChargeBarRenderRva, GameVersion::FamiliarChargeBarRenderPrologue,
             reinterpret_cast<void*>(&Hooked_ChargeBarsRender<oFamiliarChargeBarRender>),
             reinterpret_cast<void**>(&oFamiliarChargeBarRender));

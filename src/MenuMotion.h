@@ -164,10 +164,10 @@ struct SecretsMotion {
 
     void Observe(uintptr_t panel, uint32_t frame) {
         if (!clock.Observe(panel, frame)) return;
-        const int currentSelection = *reinterpret_cast<const int*>(panel + 0x13C);
+        const int currentSelection = *reinterpret_cast<const int*>(panel + GameVersion::SecretsSelectionOffset);
         if (clock.tick == 1 || selection != currentSelection) motion = {};
         selection = currentSelection;
-        original = *reinterpret_cast<const Vector*>(panel + 0x134);
+        original = *reinterpret_cast<const Vector*>(panel + GameVersion::SecretsScrollInOffset);
         motion.Sample(clock.tick, original, 160.0f);
     }
 };
@@ -175,7 +175,7 @@ struct SecretsMotion {
 class SecretsPreview {
 public:
     SecretsPreview(SecretsMotion& history, float phase) : history(history) {
-        auto& native = *reinterpret_cast<Vector*>(history.clock.panel + 0x134);
+        auto& native = *reinterpret_cast<Vector*>(history.clock.panel + GameVersion::SecretsScrollInOffset);
         original = native;
         preview = original;
         if (SamePosition(native, history.original)) {
@@ -184,7 +184,7 @@ public:
         }
     }
     ~SecretsPreview() {
-        auto& native = *reinterpret_cast<Vector*>(history.clock.panel + 0x134);
+        auto& native = *reinterpret_cast<Vector*>(history.clock.panel + GameVersion::SecretsScrollInOffset);
         if (SamePosition(native, preview)) native = original;
     }
     SecretsPreview(const SecretsPreview&) = delete;
